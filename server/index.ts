@@ -1,6 +1,7 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
@@ -56,10 +57,21 @@ app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 const distPath = path.resolve(__dirname, "../client/dist");
-app.use(express.static(distPath));
-app.get("/{*splat}", (_req, res) => {
-  res.sendFile(path.join(distPath, "index.html"));
-});
+const indexPath = path.join(distPath, "index.html");
+
+if (fs.existsSync(indexPath)) {
+  app.use(express.static(distPath));
+  app.get("/{*splat}", (_req, res) => {
+    res.sendFile(indexPath);
+  });
+} else {
+  app.get("/{*splat}", (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+      message: "Revora API is running. Deploy the frontend separately and call /api routes."
+    });
+  });
+}
 
 app.listen(port, () => {
   console.log(`Revora API running on http://127.0.0.1:${port}`);
