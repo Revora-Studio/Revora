@@ -1,4 +1,5 @@
 import { useOutletContext } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CalendarDays, ChevronDown, CirclePlay, LineChart } from "lucide-react";
 import {
@@ -8,8 +9,10 @@ import {
   metrics,
 } from "@/data/content";
 import { contactEmail } from "@/data/contact";
+import { getCaseStudies, getRestaurants } from "@/lib/api";
 import { PremiumButton } from "@/components/PremiumButton";
 import { SectionLabel } from "@/components/SectionLabel";
+import type { CaseStudy } from "@/types";
 
 type LayoutContext = {
   openLeadForm: () => void;
@@ -22,11 +25,29 @@ const fadeUp = {
 
 const viewport = { once: true, margin: "-80px" };
 
+const fallbackCaseStudies: CaseStudy[] = caseStudies.map((study) => ({
+  ...study,
+  id: study.name,
+  createdAt: "",
+  updatedAt: ""
+}));
+
 export function Home() {
   const { openLeadForm } = useOutletContext<LayoutContext>();
+  const [restaurantNames, setRestaurantNames] = useState(logos);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.25], [0, 120]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.22], [1, 0.24]);
+
+  useEffect(() => {
+    getRestaurants()
+      .then((response) => {
+        if (response.restaurants.length) {
+          setRestaurantNames(response.restaurants.map((restaurant) => restaurant.name));
+        }
+      })
+      .catch(() => setRestaurantNames(logos));
+  }, []);
 
   return (
     <main id="content">
@@ -80,7 +101,7 @@ export function Home() {
 
       <section className="proof">
         <div className="logo-strip" aria-label="Selected client brands">
-          {logos.map((logo) => (
+          {restaurantNames.map((logo) => (
             <span key={logo}>{logo}</span>
           ))}
         </div>
@@ -153,7 +174,16 @@ export function Home() {
 }
 
 export function CaseStudyPreview({ compact = false }: { compact?: boolean }) {
-  const visibleCases = compact ? caseStudies.slice(0, 2) : caseStudies;
+  const [caseStudyItems, setCaseStudyItems] = useState(fallbackCaseStudies);
+  const visibleCases = compact ? caseStudyItems.slice(0, 2) : caseStudyItems;
+
+  useEffect(() => {
+    getCaseStudies()
+      .then((response) => {
+        if (response.caseStudies.length) setCaseStudyItems(response.caseStudies);
+      })
+      .catch(() => setCaseStudyItems(fallbackCaseStudies));
+  }, []);
 
   return (
     <section className="cases">

@@ -11,8 +11,11 @@ const emptyProfile = {
   name: "",
   email: "",
   brandName: "",
-  businessType: "Restaurant"
+  businessType: "Restaurant",
+  avatarUrl: ""
 };
+
+const maxImageBytes = 4 * 1024 * 1024;
 
 export function PortalPage() {
   const { openLeadForm } = useOutletContext<{ openLeadForm: () => void }>();
@@ -32,7 +35,8 @@ export function PortalPage() {
       name: nextClient.name,
       email: nextClient.email,
       brandName: nextClient.brandName,
-      businessType: nextClient.businessType
+      businessType: nextClient.businessType,
+      avatarUrl: nextClient.avatarUrl ?? ""
     });
   };
 
@@ -69,6 +73,25 @@ export function PortalPage() {
     if (client) syncProfile(client);
     setError("");
     setEditing(false);
+  };
+
+  const updateAvatar = (file: File | undefined) => {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file.");
+      return;
+    }
+    if (file.size > maxImageBytes) {
+      setError("Please upload an image under 4 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfile((current) => ({ ...current, avatarUrl: String(reader.result || "") }));
+      setError("");
+    };
+    reader.onerror = () => setError("Unable to read image file.");
+    reader.readAsDataURL(file);
   };
 
   if (loggedOut || (!token && !loading)) {
@@ -113,6 +136,9 @@ export function PortalPage() {
 
           {editing ? (
             <form className="profile-form" onSubmit={saveProfile}>
+              <div className="profile-avatar-preview">
+                {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{profile.name.charAt(0) || "R"}</span>}
+              </div>
               <label>
                 Your name
                 <input
@@ -168,6 +194,14 @@ export function PortalPage() {
                   />
                 </label>
               ) : null}
+              <label>
+                Avatar image
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => updateAvatar(event.target.files?.[0])}
+                />
+              </label>
               {error ? <p className="form-error">{error}</p> : null}
               <div className="profile-actions">
                 <button type="submit" disabled={saving}>
@@ -182,6 +216,9 @@ export function PortalPage() {
             </form>
           ) : (
             <>
+              <div className="profile-avatar-preview">
+                {client?.avatarUrl ? <img src={client.avatarUrl} alt="" /> : <span>{client?.name?.charAt(0) ?? "R"}</span>}
+              </div>
               <strong>{client?.brandName ?? "Loading"}</strong>
               <p>{client?.businessType ?? "Hospitality"} account</p>
               <dl className="profile-details">

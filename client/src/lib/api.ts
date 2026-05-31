@@ -1,6 +1,6 @@
-import type { ClientUser, Lead, LeadInput, LeadStats, LeadStatus } from "@/types";
+import type { CaseStudy, ClientUser, Lead, LeadInput, LeadStats, LeadStatus, Restaurant, ServiceItem } from "@/types";
 
-const API_BASE = import.meta.env.VITE_API_URL || "";
+const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem("revora_admin_token");
@@ -69,7 +69,7 @@ export function getClientMe() {
   return requestWithToken<{ client: ClientUser }>("/api/client/me", localStorage.getItem("revora_client_token"));
 }
 
-export function updateClientMe(input: Pick<ClientUser, "name" | "email" | "brandName" | "businessType">) {
+export function updateClientMe(input: Pick<ClientUser, "name" | "email" | "brandName" | "businessType" | "avatarUrl">) {
   return requestWithToken<{ token: string; client: ClientUser }>("/api/client/me", localStorage.getItem("revora_client_token"), {
     method: "PATCH",
     body: JSON.stringify(input)
@@ -96,6 +96,64 @@ export function updateLead(id: string, input: { status?: LeadStatus; notes?: str
 
 export function deleteLead(id: string) {
   return request<{ deleted: boolean }>(`/api/leads/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export function getRestaurants() {
+  return requestWithToken<{ restaurants: Restaurant[] }>("/api/restaurants", null);
+}
+
+export function createRestaurant(input: { name: string }) {
+  return request<{ restaurant: Restaurant }>("/api/restaurants", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function deleteRestaurant(id: string) {
+  return request<{ deleted: boolean }>(`/api/restaurants/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export function getServices() {
+  return requestWithToken<{ services: ServiceItem[] }>("/api/content/services", null);
+}
+
+export function createService(input: Omit<ServiceItem, "id" | "createdAt" | "updatedAt">) {
+  return request<{ service: ServiceItem }>("/api/content/services", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function updateService(id: string, input: Omit<ServiceItem, "id" | "createdAt" | "updatedAt">) {
+  return request<{ service: ServiceItem }>(`/api/content/services/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(input)
+  });
+}
+
+export function deleteService(id: string) {
+  return request<{ deleted: boolean }>(`/api/content/services/${id}`, {
+    method: "DELETE"
+  });
+}
+
+export function getCaseStudies() {
+  return requestWithToken<{ caseStudies: CaseStudy[] }>("/api/content/case-studies", null);
+}
+
+export function createCaseStudy(input: Omit<CaseStudy, "id" | "createdAt" | "updatedAt">) {
+  return request<{ caseStudy: CaseStudy }>("/api/content/case-studies", {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function deleteCaseStudy(id: string) {
+  return request<{ deleted: boolean }>(`/api/content/case-studies/${id}`, {
     method: "DELETE"
   });
 }

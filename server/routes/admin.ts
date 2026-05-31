@@ -1,7 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { isMongoReady } from "../config/db";
+import { ensureDatabaseReady, isMongoReady } from "../config/db";
 import { requireAdmin } from "../middleware/auth";
 import { AdminModel } from "../models/Admin";
 import { promises as fs } from "node:fs";
@@ -32,6 +32,7 @@ async function writeAdmins(admins: StoredAdmin[]) {
 }
 
 async function findAdminByEmail(email: string) {
+  await ensureDatabaseReady();
   const normalizedEmail = email.toLowerCase().trim();
 
   if (isMongoReady()) {
@@ -49,6 +50,7 @@ async function findAdminByEmail(email: string) {
 }
 
 async function createAdmin(email: string, passwordHash: string) {
+  await ensureDatabaseReady();
   const normalizedEmail = email.toLowerCase().trim();
 
   if (isMongoReady()) {

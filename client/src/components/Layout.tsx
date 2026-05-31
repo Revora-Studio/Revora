@@ -11,6 +11,9 @@ export function Layout() {
   const [leadOpen, setLeadOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem("revora_theme") || "dark");
   const clientLoggedIn = Boolean(localStorage.getItem("revora_client_token"));
+  const adminLoggedIn = Boolean(localStorage.getItem("revora_admin_token"));
+  const profilePath = adminLoggedIn ? "/admin" : clientLoggedIn ? "/portal" : "/login";
+  const profileLabel = adminLoggedIn ? "Admin" : clientLoggedIn ? "Profile" : "Login";
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -41,11 +44,11 @@ export function Layout() {
         <div className="nav-actions">
           <Link
             className="login-link"
-            to={clientLoggedIn ? "/portal" : "/login"}
-            aria-label={clientLoggedIn ? "Client profile" : "Client login"}
+            to={profilePath}
+            aria-label={adminLoggedIn ? "Admin dashboard" : clientLoggedIn ? "Client profile" : "Login"}
           >
-            {clientLoggedIn ? <UserCircle size={16} /> : <LogIn size={16} />}
-            <span>{clientLoggedIn ? "Profile" : "Login"}</span>
+            {adminLoggedIn || clientLoggedIn ? <UserCircle size={16} /> : <LogIn size={16} />}
+            <span>{profileLabel}</span>
           </Link>
           <button
             className="theme-toggle"
@@ -70,12 +73,12 @@ export function Layout() {
               {item.label}
             </NavLink>
           ))}
-          <NavLink to={clientLoggedIn ? "/portal" : "/login"} onClick={() => setMenuOpen(false)}>
-            {clientLoggedIn ? "Client profile" : "Client login"}
+          <NavLink to={profilePath} onClick={() => setMenuOpen(false)}>
+            {adminLoggedIn ? "Admin dashboard" : clientLoggedIn ? "Client profile" : "Login"}
           </NavLink>
-          {!clientLoggedIn ? (
+          {!clientLoggedIn && !adminLoggedIn ? (
             <NavLink to="/signup" onClick={() => setMenuOpen(false)}>
-              Client signup
+              Signup
             </NavLink>
           ) : null}
           <button

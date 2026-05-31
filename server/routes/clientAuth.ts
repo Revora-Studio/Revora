@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { requireClient } from "../middleware/clientAuth";
 import { createClient, findClientById, publicClient, updateClientProfile, verifyClient } from "../storage/clientStore";
+import { uploadImageToCloudinary } from "../utils/cloudinary";
 
 export const clientAuthRouter = Router();
 
@@ -23,7 +24,8 @@ const profileSchema = z.object({
   name: z.string().min(2).max(90),
   email: z.string().email(),
   brandName: z.string().min(2).max(120),
-  businessType: z.string().min(2).max(80)
+  businessType: z.string().min(2).max(80),
+  avatarUrl: z.string().min(10).or(z.literal("")).optional()
 });
 
 function signClient(input: { id: string; email: string }) {
@@ -80,7 +82,14 @@ clientAuthRouter.patch("/me", requireClient, async (req, res) => {
     return res.status(400).json({ message: "Please check your profile details.", issues: parsed.error.flatten() });
   }
 
-  const client = await updateClientProfile(res.locals.client.id, parsed.data);
+  const profile = {
+    ...parsed.data,
+    avatarUrl: parsed.data.avatarUrl
+      ? await uploadImageToCloudinary(parsed.data.avatarUrl, "revora/avatars")
+      : ""
+  };
+
+  const client = await updateClientProfile(res.locals.client.id, profile);
   if (!client) {
     return res.status(404).json({ message: "Client account not found." });
   }

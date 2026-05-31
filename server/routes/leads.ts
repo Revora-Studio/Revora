@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { isMongoReady } from "../config/db";
+import { ensureDatabaseReady, isMongoReady } from "../config/db";
 import { requireAdmin } from "../middleware/auth";
 import { LeadModel } from "../models/Lead";
 import {
@@ -45,6 +45,7 @@ const emptyStatusCounts: Record<LeadStatus, number> = {
 };
 
 leadRouter.post("/", async (req, res) => {
+  await ensureDatabaseReady();
   const parsed = leadSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: "Please check the consultation form.", issues: parsed.error.flatten() });
@@ -60,6 +61,7 @@ leadRouter.post("/", async (req, res) => {
 });
 
 leadRouter.get("/", requireAdmin, async (req, res) => {
+  await ensureDatabaseReady();
   const status = typeof req.query.status === "string" ? req.query.status : undefined;
   const q = typeof req.query.q === "string" ? req.query.q : undefined;
 
@@ -89,6 +91,7 @@ leadRouter.get("/", requireAdmin, async (req, res) => {
 });
 
 leadRouter.get("/stats", requireAdmin, async (_req, res) => {
+  await ensureDatabaseReady();
   if (isMongoReady()) {
     const [total, grouped, newest] = await Promise.all([
       LeadModel.countDocuments(),
@@ -119,6 +122,7 @@ leadRouter.get("/stats", requireAdmin, async (_req, res) => {
 });
 
 leadRouter.patch("/:id", requireAdmin, async (req, res) => {
+  await ensureDatabaseReady();
   const parsed = leadUpdateSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: "Invalid update.", issues: parsed.error.flatten() });
@@ -137,6 +141,7 @@ leadRouter.patch("/:id", requireAdmin, async (req, res) => {
 });
 
 leadRouter.delete("/:id", requireAdmin, async (req, res) => {
+  await ensureDatabaseReady();
   const id = String(req.params.id);
 
   if (isMongoReady()) {
