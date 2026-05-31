@@ -68,7 +68,7 @@ if (fs.existsSync(indexPath)) {
   app.get("/{*splat}", (_req, res) => {
     res.status(200).json({
       status: "ok",
-      message: "Revora API is running. Deploy the frontend separately and call /api routes."
+      message: "Revora API is running ."
     });
   });
 }
