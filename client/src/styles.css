@@ -482,7 +482,8 @@ section:not(.hero) {
   display: grid;
   min-height: 5rem;
   place-items: center;
-  color: rgba(246, 239, 228, 0.62);
+  background: var(--black);
+  color: color-mix(in srgb, var(--cream) 76%, var(--muted));
   text-align: center;
 }
 
