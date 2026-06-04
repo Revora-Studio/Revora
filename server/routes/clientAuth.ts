@@ -182,7 +182,9 @@ clientAuthRouter.post("/password/otp", async (req, res) => {
     expiresAt: Date.now() + otpTtlMs
   });
 
-  console.log(`Revora password reset OTP for ${client.email}: ${otp}`);
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`Revora password reset OTP for ${client.email}: ${otp}`);
+  }
 
   return res.json({
     message: "OTP sent to the phone number on your client account.",

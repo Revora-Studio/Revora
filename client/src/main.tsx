@@ -26,8 +26,10 @@ if (!clerkPublishableKey) {
         publishableKey={clerkPublishableKey}
         signInUrl="/login"
         signUpUrl="/signup"
-        afterSignInUrl="/"
-        afterSignUpUrl="/"
+        signInFallbackRedirectUrl="/"
+        signUpFallbackRedirectUrl="/"
+        signInForceRedirectUrl="/"
+        signUpForceRedirectUrl="/"
       >
         <BrowserRouter>
           <App />

@@ -246,7 +246,7 @@ export async function upsertClerkClient(input: {
           phone: next.phone || existing.phone || "",
           brandName: next.brandName || existing.brandName || "",
           businessType: next.businessType || existing.businessType || "",
-          avatarUrl: next.avatarUrl || existing.avatarUrl || ""
+          avatarUrl: existing.avatarUrl || next.avatarUrl || ""
         },
         { new: true }
       );
@@ -271,7 +271,7 @@ export async function upsertClerkClient(input: {
       phone: next.phone || clients[index].phone || "",
       brandName: next.brandName || clients[index].brandName || "",
       businessType: next.businessType || clients[index].businessType || "",
-      avatarUrl: next.avatarUrl || clients[index].avatarUrl || "",
+      avatarUrl: clients[index].avatarUrl || next.avatarUrl || "",
       updatedAt: new Date().toISOString()
     };
     await writeClients(clients);
