@@ -33,7 +33,10 @@ const clerkAppearance = {
     formFieldInputGroup: "clerk-input-group",
     formFieldLabel: "clerk-label",
     dividerLine: "clerk-divider-line",
-    dividerText: "clerk-divider-text"
+    dividerText: "clerk-divider-text",
+    identityPreview: "clerk-identity-preview",
+    identityPreviewText: "clerk-identity-preview-text",
+    identityPreviewEditButton: "clerk-identity-preview-edit"
   }
 };
 

@@ -1305,6 +1305,57 @@ textarea {
   font-weight: 700 !important;
 }
 
+.clerk-identity-preview,
+.cl-card .cl-identityPreview {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+  margin: 0.35rem auto 1.2rem !important;
+  padding: 0 !important;
+  color: var(--cream) !important;
+}
+
+.clerk-identity-preview-text,
+.cl-card .cl-identityPreviewText {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  max-width: min(18rem, calc(100% - 3rem)) !important;
+  overflow: hidden !important;
+  color: var(--cream) !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.clerk-identity-preview-edit,
+.cl-card .cl-identityPreviewEditButton {
+  display: inline-grid !important;
+  flex: 0 0 2rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+  place-items: center !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--gold) !important;
+  padding: 0 !important;
+}
+
+.clerk-identity-preview-edit *,
+.cl-card .cl-identityPreviewEditButton * {
+  color: var(--gold) !important;
+  opacity: 1 !important;
+}
+
+.clerk-identity-preview-edit:hover,
+.cl-card .cl-identityPreviewEditButton:hover {
+  background: rgba(201, 154, 85, 0.12) !important;
+}
+
 .clerk-input {
   min-height: 2.9rem !important;
   border: 1px solid var(--line) !important;
@@ -1330,6 +1381,31 @@ textarea {
 .clerk-social-button:hover {
   border-color: var(--gold) !important;
   background: rgba(201, 154, 85, 0.12) !important;
+}
+
+.clerk-card [role="button"],
+.clerk-card button {
+  color: var(--cream) !important;
+}
+
+.clerk-card [role="button"]:not(.clerk-primary-button),
+.clerk-card button:not(.clerk-primary-button) {
+  border-color: color-mix(in srgb, var(--gold) 26%, var(--line)) !important;
+  background: var(--auth-field-bg) !important;
+  box-shadow: none !important;
+}
+
+.clerk-card [role="button"]:not(.clerk-primary-button):hover,
+.clerk-card button:not(.clerk-primary-button):hover {
+  border-color: var(--gold) !important;
+  background: rgba(201, 154, 85, 0.12) !important;
+}
+
+.clerk-card [role="button"] *,
+.clerk-card button:not(.clerk-primary-button) *,
+.clerk-card svg {
+  color: var(--cream) !important;
+  opacity: 1 !important;
 }
 
 .clerk-primary-button {
