@@ -21,8 +21,8 @@ export function App() {
           <Route path="/case-studies" element={<CaseStudiesPage />} />
           <Route path="/industries" element={<IndustriesPage />} />
           <Route path="/insights" element={<InsightsPage />} />
-          <Route path="/login" element={<ClientAuthPage mode="login" />} />
-          <Route path="/signup" element={<ClientAuthPage mode="signup" />} />
+          <Route path="/login/*" element={<ClientAuthPage mode="login" />} />
+          <Route path="/signup/*" element={<ClientAuthPage mode="signup" />} />
           <Route path="/portal" element={<PortalPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />

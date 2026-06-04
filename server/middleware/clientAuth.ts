@@ -1,13 +1,21 @@
 import type { NextFunction, Request, Response } from "express";
+import { getAuth } from "@clerk/express";
 import jwt from "jsonwebtoken";
 
 export type ClientToken = {
   id: string;
   email: string;
+  clerkUserId?: string;
   role: "client";
 };
 
 export function requireClient(req: Request, res: Response, next: NextFunction) {
+  const auth = getAuth(req);
+  if (auth.userId) {
+    res.locals.client = { id: auth.userId, clerkUserId: auth.userId, email: "", role: "client" };
+    return next();
+  }
+
   const header = req.headers.authorization;
   const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
 

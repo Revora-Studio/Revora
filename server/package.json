@@ -9,6 +9,7 @@
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@clerk/express": "^2.1.23",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

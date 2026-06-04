@@ -1,5 +1,6 @@
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
+import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
 import fs from "node:fs";
 import path from "node:path";
@@ -37,6 +38,7 @@ app.use(
   })
 );
 app.use(express.json({ limit: "12mb" }));
+app.use(clerkMiddleware());
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "revora-mern-api" });

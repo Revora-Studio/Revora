@@ -9,6 +9,7 @@
     "lint": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.8",
     "clsx": "latest",
     "framer-motion": "latest",
     "lucide-react": "latest",

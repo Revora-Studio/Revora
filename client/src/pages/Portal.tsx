@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { Navigate, useOutletContext } from "react-router-dom";
 import { CalendarDays, Edit3, LogOut, Save, X } from "lucide-react";
 import { businessTypes, isPresetBusinessType, otherBusinessType } from "@/data/businessTypes";
@@ -10,6 +11,7 @@ import { PremiumButton } from "@/components/PremiumButton";
 const emptyProfile = {
   name: "",
   email: "",
+  phone: "",
   brandName: "",
   businessType: "Restaurant",
   avatarUrl: ""
@@ -17,8 +19,14 @@ const emptyProfile = {
 
 const maxImageBytes = 4 * 1024 * 1024;
 
+function isProfileIncomplete(client: ClientUser | null) {
+  return !client?.phone?.trim() || !client.brandName?.trim() || !client.businessType?.trim();
+}
+
 export function PortalPage() {
   const { openLeadForm } = useOutletContext<{ openLeadForm: () => void }>();
+  const { getToken, isLoaded, isSignedIn, signOut } = useAuth();
+  const { user } = useUser();
   const [client, setClient] = useState<ClientUser | null>(null);
   const [profile, setProfile] = useState(emptyProfile);
   const [editing, setEditing] = useState(false);
@@ -26,31 +34,49 @@ export function PortalPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [loggedOut, setLoggedOut] = useState(false);
-  const token = localStorage.getItem("revora_client_token");
   const businessTypeChoice = isPresetBusinessType(profile.businessType) ? profile.businessType : otherBusinessType;
+  const profileIncomplete = isProfileIncomplete(client);
 
   const syncProfile = (nextClient: ClientUser) => {
     setClient(nextClient);
     setProfile({
       name: nextClient.name,
       email: nextClient.email,
+      phone: nextClient.phone ?? "",
       brandName: nextClient.brandName,
-      businessType: nextClient.businessType,
+      businessType: nextClient.businessType || "Restaurant",
       avatarUrl: nextClient.avatarUrl ?? ""
     });
+    setEditing(isProfileIncomplete(nextClient));
   };
 
   useEffect(() => {
-    if (!token) {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
       setLoading(false);
       return;
     }
 
-    getClientMe()
+    getToken()
+      .then((token) => getClientMe(token))
       .then((response) => syncProfile(response.client))
-      .catch(() => localStorage.removeItem("revora_client_token"))
+      .catch(() => {
+        if (user) {
+          const email = user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || "";
+          syncProfile({
+            id: user.id,
+            name: user.fullName || user.firstName || email.split("@")[0] || "Client",
+            email,
+            phone: user.primaryPhoneNumber?.phoneNumber || "",
+            brandName: "",
+            businessType: "",
+            avatarUrl: user.imageUrl || "",
+            createdAt: new Date().toISOString()
+          });
+        }
+      })
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [getToken, isLoaded, isSignedIn, user]);
 
   const saveProfile = async (event: FormEvent) => {
     event.preventDefault();
@@ -58,8 +84,8 @@ export function PortalPage() {
     setSaving(true);
 
     try {
-      const response = await updateClientMe(profile);
-      localStorage.setItem("revora_client_token", response.token);
+      const token = await getToken();
+      const response = await updateClientMe(profile, token);
       syncProfile(response.client);
       setEditing(false);
     } catch (saveError) {
@@ -72,7 +98,7 @@ export function PortalPage() {
   const cancelEdit = () => {
     if (client) syncProfile(client);
     setError("");
-    setEditing(false);
+    setEditing(profileIncomplete);
   };
 
   const updateAvatar = (file: File | undefined) => {
@@ -94,7 +120,7 @@ export function PortalPage() {
     reader.readAsDataURL(file);
   };
 
-  if (loggedOut || (!token && !loading)) {
+  if (loggedOut || (isLoaded && !isSignedIn && !loading)) {
     return <Navigate to="/login" replace />;
   }
 
@@ -112,8 +138,8 @@ export function PortalPage() {
         <button
           className="nav-cta"
           type="button"
-          onClick={() => {
-            localStorage.removeItem("revora_client_token");
+          onClick={async () => {
+            await signOut();
             setLoggedOut(true);
           }}
         >
@@ -125,8 +151,8 @@ export function PortalPage() {
       <section className="portal-grid">
         <article className="profile-card">
           <div className="profile-card-top">
-            <span>Profile</span>
-            {!editing ? (
+            <span>{profileIncomplete ? "Complete profile" : "Profile"}</span>
+            {!editing && !profileIncomplete ? (
               <button className="icon-text-button" type="button" onClick={() => setEditing(true)} disabled={loading}>
                 <Edit3 size={15} />
                 Edit
@@ -139,6 +165,9 @@ export function PortalPage() {
               <div className="profile-avatar-preview">
                 {profile.avatarUrl ? <img src={profile.avatarUrl} alt="" /> : <span>{profile.name.charAt(0) || "R"}</span>}
               </div>
+              {profileIncomplete ? (
+                <p className="form-notice">Add these details to finish setting up your client workspace.</p>
+              ) : null}
               <label>
                 Your name
                 <input
@@ -153,6 +182,14 @@ export function PortalPage() {
                   type="email"
                   value={profile.email}
                   onChange={(event) => setProfile((current) => ({ ...current, email: event.target.value }))}
+                  required
+                />
+              </label>
+              <label>
+                Phone / WhatsApp
+                <input
+                  value={profile.phone}
+                  onChange={(event) => setProfile((current) => ({ ...current, phone: event.target.value }))}
                   required
                 />
               </label>
@@ -210,7 +247,7 @@ export function PortalPage() {
                 </button>
                 <button type="button" onClick={cancelEdit}>
                   <X size={15} />
-                  Cancel
+                  {profileIncomplete ? "Later" : "Cancel"}
                 </button>
               </div>
             </form>
@@ -229,6 +266,10 @@ export function PortalPage() {
                 <div>
                   <dt>Email</dt>
                   <dd>{client?.email ?? "Loading"}</dd>
+                </div>
+                <div>
+                  <dt>Phone</dt>
+                  <dd>{client?.phone || "Add phone for OTP recovery"}</dd>
                 </div>
               </dl>
             </>

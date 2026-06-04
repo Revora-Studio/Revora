@@ -1,10 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
 export type ClientDocument = {
+  clerkUserId?: string;
   name: string;
   email: string;
-  brandName: string;
-  businessType: string;
+  phone?: string;
+  brandName?: string;
+  businessType?: string;
   avatarUrl?: string;
   passwordHash: string;
   createdAt: Date;
@@ -13,10 +15,12 @@ export type ClientDocument = {
 
 const clientSchema = new Schema<ClientDocument>(
   {
+    clerkUserId: { type: String, unique: true, sparse: true, trim: true },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    brandName: { type: String, required: true, trim: true },
-    businessType: { type: String, required: true, trim: true },
+    phone: { type: String, default: "", trim: true },
+    brandName: { type: String, default: "", trim: true },
+    businessType: { type: String, default: "", trim: true },
     avatarUrl: { type: String, default: "" },
     passwordHash: { type: String, required: true }
   },

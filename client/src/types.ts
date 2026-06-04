@@ -31,6 +31,7 @@ export type ClientUser = {
   id: string;
   name: string;
   email: string;
+  phone: string;
   brandName: string;
   businessType: string;
   avatarUrl?: string;

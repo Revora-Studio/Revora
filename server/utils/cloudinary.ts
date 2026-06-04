@@ -19,6 +19,9 @@ export async function uploadImageToCloudinary(imageData: string, folder: string)
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
   if (!cloudName || !apiKey || !apiSecret) {
+    if (process.env.NODE_ENV !== "production") {
+      return imageData;
+    }
     throw new Error("Cloudinary environment variables are missing.");
   }
 

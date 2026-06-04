@@ -48,6 +48,7 @@ export function adminSignup(input: { email: string; password: string; inviteCode
 export function clientSignup(input: {
   name: string;
   email: string;
+  phone: string;
   brandName: string;
   businessType: string;
   password: string;
@@ -65,12 +66,60 @@ export function clientLogin(input: { email: string; password: string }) {
   });
 }
 
-export function getClientMe() {
-  return requestWithToken<{ client: ClientUser }>("/api/client/me", localStorage.getItem("revora_client_token"));
+export type ClerkClientProfileInput = {
+  clerkUserId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  brandName?: string;
+  businessType?: string;
+  avatarUrl?: string;
+};
+
+export function syncClerkClient(input: ClerkClientProfileInput, token: string | null) {
+  return requestWithToken<{ client: ClientUser }>("/api/client/clerk/sync", token, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
 }
 
-export function updateClientMe(input: Pick<ClientUser, "name" | "email" | "brandName" | "businessType" | "avatarUrl">) {
-  return requestWithToken<{ token: string; client: ClientUser }>("/api/client/me", localStorage.getItem("revora_client_token"), {
+export function requestClientPasswordOtp(input: { email: string; phone: string }) {
+  return requestWithToken<{ message: string; devOtp?: string }>("/api/client/password/otp", null, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function resetClientPassword(input: { email: string; phone: string; otp: string; password: string }) {
+  return requestWithToken<{ token: string; client: ClientUser }>("/api/client/password/reset", null, {
+    method: "POST",
+    body: JSON.stringify(input)
+  });
+}
+
+export function getSocialLoginUrl(
+  provider: "google" | "microsoft",
+  input?: {
+    flow?: "login" | "signup";
+    redirectTo?: string;
+    name?: string;
+    phone?: string;
+    brandName?: string;
+    businessType?: string;
+  }
+) {
+  return requestWithToken<{ url: string }>(`/api/client/oauth/${provider}`, null, {
+    method: "POST",
+    body: JSON.stringify(input ?? {})
+  });
+}
+
+export function getClientMe(token?: string | null) {
+  return requestWithToken<{ client: ClientUser }>("/api/client/me", token ?? localStorage.getItem("revora_client_token"));
+}
+
+export function updateClientMe(input: Pick<ClientUser, "name" | "email" | "phone" | "brandName" | "businessType" | "avatarUrl">, token?: string | null) {
+  return requestWithToken<{ token?: string; client: ClientUser }>("/api/client/me", token ?? localStorage.getItem("revora_client_token"), {
     method: "PATCH",
     body: JSON.stringify(input)
   });

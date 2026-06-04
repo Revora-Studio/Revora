@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
-import { Download, Loader2, LogOut, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Download, Loader2, LogOut, Plus, RefreshCw, Search, Trash2 } from "lucide-react";
 import {
+  adminLogin,
+  adminSignup,
   createCaseStudy,
   createRestaurant,
   createService,
@@ -47,6 +48,105 @@ const emptyCaseStudyForm = {
 };
 
 const maxImageBytes = 4 * 1024 * 1024;
+
+function AdminAuthForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const isSignup = authMode === "signup";
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = isSignup
+        ? await adminSignup({ email, password, inviteCode })
+        : await adminLogin({ email, password });
+      localStorage.setItem("revora_admin_token", response.token);
+      onAuthenticated(response.token);
+    } catch (authError) {
+      setError(authError instanceof Error ? authError.message : "Unable to continue.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <main id="content" className="auth-page-shell">
+      <section className="auth-panel">
+        <div className="auth-copy">
+          <p className="eyebrow">Admin access</p>
+          <h1>{isSignup ? "Create your admin account." : "Login to admin."}</h1>
+          <p>Manage leads, restaurants, services, and case studies from one workspace.</p>
+        </div>
+        <form className="admin-login auth-card" onSubmit={submit}>
+          <div className="auth-switch" role="tablist" aria-label="Admin authentication mode">
+            <button
+              type="button"
+              className={!isSignup ? "active" : ""}
+              onClick={() => {
+                setAuthMode("login");
+                setError("");
+              }}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              className={isSignup ? "active" : ""}
+              onClick={() => {
+                setAuthMode("signup");
+                setError("");
+              }}
+            >
+              Signup
+            </button>
+          </div>
+          <label>
+            Admin email
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+          </label>
+          <label>
+            Password
+            <span className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                minLength={isSignup ? 8 : undefined}
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                title={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </span>
+          </label>
+          {isSignup ? (
+            <label>
+              Invite code
+              <input value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} required />
+            </label>
+          ) : null}
+          {error ? <p className="form-error">{error}</p> : null}
+          <button className="form-submit" type="submit" disabled={loading}>
+            {loading ? "Please wait..." : isSignup ? "Create admin account" : "Login"}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
 
 function uniqueByTitle<T extends { title?: string; name?: string }>(items: T[]) {
   const seen = new Set<string>();
@@ -249,7 +349,7 @@ export function AdminPage() {
     URL.revokeObjectURL(url);
   };
 
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <AdminAuthForm onAuthenticated={setToken} />;
 
   return (
     <main id="content" className="admin-shell">
