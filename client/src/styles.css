@@ -1408,15 +1408,30 @@ textarea {
   opacity: 1 !important;
 }
 
-.clerk-primary-button {
+.clerk-primary-button,
+.cl-card .cl-formButtonPrimary,
+.cl-card button[type="submit"],
+.clerk-card button[type="submit"] {
   min-height: 3.05rem !important;
   background: var(--cream) !important;
   color: var(--black) !important;
+  border: 0 !important;
   box-shadow: none !important;
   font-weight: 800 !important;
 }
 
-.clerk-primary-button:hover {
+.clerk-primary-button *,
+.cl-card .cl-formButtonPrimary *,
+.cl-card button[type="submit"] *,
+.clerk-card button[type="submit"] * {
+  color: var(--black) !important;
+  opacity: 1 !important;
+}
+
+.clerk-primary-button:hover,
+.cl-card .cl-formButtonPrimary:hover,
+.cl-card button[type="submit"]:hover,
+.clerk-card button[type="submit"]:hover {
   background: var(--gold) !important;
   color: var(--black) !important;
 }
