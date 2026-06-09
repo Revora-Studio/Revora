@@ -1369,6 +1369,43 @@ textarea {
   box-shadow: 0 0 0 1px rgba(201, 154, 85, 0.35) !important;
 }
 
+.clerk-otp-inputs,
+.cl-card .cl-otpCodeFieldInputs {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: clamp(0.35rem, 2vw, 0.65rem) !important;
+}
+
+.clerk-otp-input,
+.cl-card .cl-otpCodeFieldInput,
+.clerk-card input[autocomplete="one-time-code"] {
+  flex: 0 1 3rem !important;
+  width: clamp(2.35rem, 11vw, 3rem) !important;
+  min-width: 0 !important;
+  height: 3.2rem !important;
+  padding: 0.35rem !important;
+  border: 1px solid color-mix(in srgb, var(--gold) 36%, var(--line)) !important;
+  background: var(--auth-field-bg-strong) !important;
+  color: var(--cream) !important;
+  caret-color: var(--gold) !important;
+  box-shadow: none !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  opacity: 1 !important;
+}
+
+.clerk-otp-input:focus,
+.cl-card .cl-otpCodeFieldInput:focus,
+.clerk-card input[autocomplete="one-time-code"]:focus {
+  border-color: var(--gold) !important;
+  outline: 2px solid color-mix(in srgb, var(--gold) 34%, transparent) !important;
+  outline-offset: 1px !important;
+}
+
 .clerk-social-button {
   min-height: 3rem !important;
   border: 1px solid color-mix(in srgb, var(--gold) 28%, var(--line)) !important;

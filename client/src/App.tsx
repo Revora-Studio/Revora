@@ -17,11 +17,11 @@ export function App() {
       <ScrollToTop />
       <Routes>
         <Route element={<Layout />}>
-          <Route index element={<ClientProtectedRoute><Home /></ClientProtectedRoute>} />
-          <Route path="/services" element={<ClientProtectedRoute><ServicesPage /></ClientProtectedRoute>} />
-          <Route path="/case-studies" element={<ClientProtectedRoute><CaseStudiesPage /></ClientProtectedRoute>} />
-          <Route path="/industries" element={<ClientProtectedRoute><IndustriesPage /></ClientProtectedRoute>} />
-          <Route path="/insights" element={<ClientProtectedRoute><InsightsPage /></ClientProtectedRoute>} />
+          <Route index element={<Home />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/case-studies" element={<CaseStudiesPage />} />
+          <Route path="/industries" element={<IndustriesPage />} />
+          <Route path="/insights" element={<InsightsPage />} />
           <Route path="/login/*" element={<ClientAuthPage mode="login" />} />
           <Route path="/signup/*" element={<ClientAuthPage mode="signup" />} />
           <Route path="/portal" element={<ClientProtectedRoute><PortalPage /></ClientProtectedRoute>} />

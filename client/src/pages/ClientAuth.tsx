@@ -36,7 +36,9 @@ const clerkAppearance = {
     dividerText: "clerk-divider-text",
     identityPreview: "clerk-identity-preview",
     identityPreviewText: "clerk-identity-preview-text",
-    identityPreviewEditButton: "clerk-identity-preview-edit"
+    identityPreviewEditButton: "clerk-identity-preview-edit",
+    otpCodeFieldInputs: "clerk-otp-inputs",
+    otpCodeFieldInput: "clerk-otp-input"
   }
 };
 
